@@ -1,6 +1,8 @@
-# APT-RAG: Adaptive Planning and Topology-aware Evidence Gathering for Evidence-Intensive QA (EMNLP 2026)
+# APT-RAG: Adaptive Planning and Topology-aware Evidence Gathering for Evidence-Intensive QA (Findings of EMNLP 2026)
 
 Official code for **A Tree-based RAG Framework for Evidence-Intensive QA via Adaptive Planning and Topology-Aware Evidence Gathering**, by Songeun Lee, Kyungjin Min, Injae Na, Suyeong Lee, Chiyoung Kim, Woohwan Jung.
+
+[**🤗 Artifacts**](https://huggingface.co/datasets/KJ-Min/APT-RAG-artifacts)
 
 ## Overview 
 
