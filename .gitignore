@@ -35,6 +35,7 @@ results/
 src/baselines/logic-rag/orignal_code/dataset/
 
 # Private or large benchmark artifacts
+data/raw/
 data/benchmarks/
 data/artifacts/corpus/
 data/artifacts/vectorDB/

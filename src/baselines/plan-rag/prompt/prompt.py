@@ -50,7 +50,6 @@ Query: {query}
 Output: """
 
 
-##### for fianl answer generation ####
 ROOT_PROMPT = {
 "monaco": """
 Above are multiple sub question–answer (QA) pairs related to the current question.
@@ -62,28 +61,6 @@ Using the provided sub QA pairs, generate an answer to the current question that
     - includes only what is needed to answer the question; omit filler and redundant phrasing.
 
 Do not produce long explanations or prose when a short, clear answer suffices. Prefer brevity while remaining complete and unambiguous.
-""",
-
-"musique": """
-Above are multiple sub question–answer (QA) pairs related to the current question.
-Each sub-question represents a more specific formulation of the current question, and its corresponding answer may contain information that is directly relevant to answering the current question.
-
-Using the provided sub QA pairs, generate an answer to the current question that:
-    - is **concise and direct**: state the answer without unnecessary explanation, padding, or repetition.
-    - includes only what is needed to answer the question; omit filler and redundant phrasing.
-
-Do not produce long explanations or prose when a short, clear answer suffices. Prefer the shortest answer that still directly and unambiguously answers the question.
-""",
-
-"quest": """
-Above are multiple sub question–answer (QA) pairs related to the current question.
-Each sub-question represents a more specific formulation of the current question, and its corresponding answer may contain information that is directly relevant to answering the current question.
-
-Using the provided sub QA pairs, generate an answer to the current question that:
-    - is **concise and direct**: state the answer without unnecessary explanation, padding, or repetition.
-    - includes only what is needed to answer the question; omit filler and redundant phrasing.
-
-Do not produce long explanations or prose when a short, clear answer suffices. Prefer the shortest answer that still directly and unambiguously answers the question.
 """,
 
 "qampari": """
@@ -109,32 +86,6 @@ You are a helpful question answering assistant. Your task is to answer the quest
 Answers: {ANSWERS}
 """,
 
-"musique": """
-You are a helpful question answering assistant. Your task is to answer the question with high precision.
-- List **only** answers that **directly and clearly** satisfy what the question asks. Do **not** include uncertain, tangential, or "possibly relevant" items.
-- Prefer **fewer, correct** answers over a long list that mixes correct and incorrect items. When in doubt, omit the item.
-- The question expects a **single correct answer**. Return only one answer.
-- The answer must be a **short answer (entity or short phrase)**, not a full sentence.
-- If multiple surface forms are possible, choose the single best one. Do **not** list aliases or alternative phrasings.
-- Do **not** include any explanation or extra text before or after the answer line.
-
-- Your response must use the following format:
-Answers: answer
-""",
-
-"quest": """
-You are a helpful question answering assistant. Your task is to answer the question with high precision.
-- List **only** answers that **directly and clearly** satisfy what the question asks. Do **not** include uncertain, tangential, or "possibly relevant" items.
-- Prefer **fewer, correct** answers over a long list that mixes correct and incorrect items. When in doubt, omit the item.
-- Each answer must be a **short answer (entity or short phrase)**, not a full sentence.
-- If multiple answers exist, separate them clearly using commas (,). If only one answer exists, return a single answer.
-- List each distinct answer only once. For the same answer item, do **not** include aliases or alternative phrasings.
-- Do **not** include any explanation or extra text before or after the answer line.
-
-- Your response must use the following format:
-Answers: answer1, answer2, ..., answerN
-""",
-
 "qampari": """
 You are a helpful question answering assistant. Your task is to answer the question with high precision.
 - List **only** answers that **directly and clearly** satisfy what the question asks. Do **not** include uncertain, tangential, or "possibly relevant" items.
@@ -158,37 +109,6 @@ Answers: answer1, answer2, ..., answerN
 
 
 
-
-
-##### for sub answer generation ####
-
-### v1
-
-SUBANS_GEN_PROMPT = """
-You are a concise answering assistant. If relevant and provided, use the Retrievals while generating the answer or use your own knowledge. If Known answers are given, use them while generating the response. Generate a JSON with a single key "Response" and a value that is a short phrase or a few words. In JSON, put every value as a string always, not float. Strictly follow the format below, and provide only the "Generation" part.
-
-Example:
-
-Query: Who was the PM of India when India performed its first nuclear test? 
-Retrievals: [["Indira Gandhi was the PM of India in 1974"], ["Indira Gandhi was the first woman PM of India."]] 
-Known answers: Q=When did India perform the first nuclear test? A=India conducted its first nuclear test on May 18, 1974, at the Pokhran Test Range in Rajasthan, India. 
-Generation: {{ 
-	"Response": "Indira Gandhi was the PM of India when India performed its first nuclear test in 1974." 
-}}
-
-Query: What type of literature did John Keble write? 
-Retrievals: [["John Keble (1792-1866) was an English clergyman, poet, and theologian, best known for his contributions to religious poetry"], ["Keble wrote essays and sermons emphasizing the importance of tradition, the authority of the Church, and the significance of the sacraments."]] 
-Generation: {{ 
-	"Response": "Religious and devotional poetry" 
-}}
-
-Query: {query}
-Known answers: {known_answers}
-Retrievals: {retrievals}
-Generation: """
-
-
-### v2
 
 
 LEAF_SYS_PROMPT = """

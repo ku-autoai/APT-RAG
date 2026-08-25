@@ -54,6 +54,16 @@ def load_jsonl(file_path, option="dict"):
         raise ValueError(f"Invalid option: {option}. Use 'dict' or 'list'.")
 
 
+def load_json(file_path):
+    with open(file_path, "r", encoding="utf-8") as f:
+        return json.load(f)
+
+
+def save_json(path, file):
+    with open(path, "w", encoding="utf-8") as saver:
+        json.dump(file, saver, indent=4, ensure_ascii=False)
+
+
 def cap_retrieved_documents_by_chars(documents, max_chars=None):
     """
     Limit retrieved documents by cumulative content characters.

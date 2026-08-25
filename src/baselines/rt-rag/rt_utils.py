@@ -8,8 +8,6 @@ import random
 import numpy as np
 from typing import List, Tuple
 
-# CUDA_VISIBLE_DEVICES: set in main.py / main2.py before any imports
-
 
 def _count_tokens(tokenizer, text: str) -> int:
     return len(tokenizer.encode(text, add_special_tokens=False))

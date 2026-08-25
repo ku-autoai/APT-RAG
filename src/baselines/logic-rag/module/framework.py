@@ -23,9 +23,9 @@ class LogicRAG:
         top_k: int = 20,
         max_rounds: int = 3
     ):
-        self.max_rounds = max_rounds  # Default max rounds for iterative retrieval
-        self.filter_repeats = filter_repeats  # Option to filter repeated chunks across rounds
-        self.top_k = top_k  # original : 5
+        self.max_rounds = max_rounds
+        self.filter_repeats = filter_repeats
+        self.top_k = top_k
         self.summary_generator = summary_generator
         self.warm_up_analyzer = warm_up_analyzer
         self.dependency_analyzer = dependency_analyzer

@@ -4,7 +4,6 @@ from enum import Enum
 
 
 class EvalResult(Enum):
-    """Query Evaluator result."""
     POSITIVE = "positive"
     NEGATIVE = "negative"
 
@@ -15,20 +14,11 @@ class SubQuestion:
 
 @dataclass
 class AnswerResult:
-    """Answer Integrator output."""
     relevance: str
     answer_span: Optional[str]
 
 @dataclass
 class EvalMetrics:
-    """
-    Query Evaluator metrics.
-    
-    - Semantic Coherence: 1-10
-    - Answerability: 0-100%
-    - Overall Assessment: 1-10 (coherence + answerability/10) / 2
-    - Response Validity: bool
-    """
     semantic_coherence: float
     answerability: float
     overall_assessment: float
@@ -42,20 +32,6 @@ class EvalMetrics:
         overall: Optional[float] = None,
         validity: Optional[bool] = None
     ):
-        """
-        Build EvalMetrics from LLM output.
-        
-        Paper Section 3.4:
-        "computed by averaging the Semantic Coherence score and 
-        the Answerability score (after converting it from a 
-        percentage to a 1-10 scale)"
-        
-        Args:
-            coherence: 1-10
-            answerability: 0-100
-            overall: Optional LLM-provided overall score.
-            validity: Optional LLM-provided validity flag.
-        """
         if overall is None:
             overall = (coherence + answerability / 10) / 2
         
@@ -71,7 +47,6 @@ class EvalMetrics:
     
     @classmethod
     def default(cls):
-        """Return fallback metrics when parsing fails."""
         return cls(
             semantic_coherence=5.0,
             answerability=50.0,

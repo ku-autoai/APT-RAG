@@ -88,8 +88,6 @@ def run_llm_with_cost(llm_type, tokenizer, model, sys_prompt, input_prompt, g_co
     )
     return generation_result, updated_cost, updated_cost_individual
 
-# -------------------- Module for query processing -------------------- 
-
 class QueryStrategyManager:
     def __init__(self, llm_type, tokenizer, model):
         self.llm_type = llm_type
@@ -150,7 +148,6 @@ class QueryStrategyManager:
         json_result = extract_json_block(DEFAULT_FALLBACK, generation_result)
         return json_result, q_plan_cost, q_plan_cost_individual
 
-# -------------------- Query Rewriter --------------------
 
 class QueryRewriter:
     def __init__(self, llm_type, tokenizer, model):
@@ -195,7 +192,6 @@ class QueryRewriter:
         return rewritten_query, q_rewrite_cost, q_rewrite_cost_individual
 
 
-# -------------------- Query Refiner --------------------
 class QueryRefiner: 
     Q_TAG_RE = re.compile(r"<Q(\d+)>")
 
@@ -231,10 +227,6 @@ class QueryRefiner:
         )
         json_result = extract_json_block(DEFAULT_FALLBACK, generation_result)
         return json_result, cm_cost, cm_cost_individual
-
-
-# -------------------- Generator -------------------- 
-
 
 
 class Generator:  
@@ -364,7 +356,6 @@ class Generator:
             max_token=max_token,
         )
     
-# -------------------- Memory controller -------------------- 
 class MemoryController:  
     def build_memory(self, query, sub_queries): 
         memory = {}
@@ -383,8 +374,6 @@ class MemoryController:
 
         return context
     
-### Evidence-guided clustering module
-
 class EvidenceGuidedCluster:
     def __init__(
         self,
@@ -403,9 +392,6 @@ class EvidenceGuidedCluster:
         self.children       = None
         self.retrieved_list = None
 
-    # -----------------------------
-    # Evidence similarity
-    # -----------------------------
     def to_pair_set(self, retrieved):
         result = set()
         for item in retrieved:
@@ -441,30 +427,12 @@ class EvidenceGuidedCluster:
             return 0.0
         return sum(sim_matrix[i][j] for i, j in combinations(group, 2))
 
-    # -----------------------------
-    # Cluster token counting (union-based)
-    # -----------------------------
     def _union_prompt_tokens(self, children, safe_retrieved, group: tuple) -> int:
-        """
-        Count the LLM input tokens for a cluster using the union of its evidence.
-        build_evidence_cluster_prompt deduplicates shared documents within the group.
-        """
         sys_tokens  = count_tokens(self.tokenizer, EVIDENCE_ANSWER_SYS_PROMPT)
         user_prompt = build_evidence_cluster_prompt(children, safe_retrieved, list(group))
         return sys_tokens + count_tokens(self.tokenizer, user_prompt)
 
-    # -----------------------------
-    # Minimum-Group-Count Clustering
-    #
-    # Objective: minimize |G|, the number of LLM calls.
-    # Constraints: pairwise evidence similarity and optional context length.
-    #   ∀ i,j ∈ G_k : Jaccard(i,j) > S
-    #        prompt_len(∪docs in G_k) < C       (context constraint, optional)
-    #
-    # Greedy places the least compatible nodes first.
-    # -----------------------------
     def _greedy_cluster(self, n: int, order: list, is_valid) -> list:
-        """First-Fit greedy clustering with a caller-supplied validity predicate."""
         cluster_lists: list[list[int]] = []
         for idx in order:
             placed = False
@@ -481,19 +449,6 @@ class EvidenceGuidedCluster:
         return result
 
     def cluster(self, children, retrieved_list, context_window_size=183296, sim_threshold=None):
-        """
-        min |G|  subject to
-          (1) ∀ i,j ∈ G_k : Jaccard(i,j) > sim_threshold
-          (2) prompt_len( ∪ docs in G_k ) < context_window_size  (with_length only)
-
-        Returns dict:
-          - with_length: clusters used for inference
-          - no_length: clusters using only the similarity constraint
-          - latency_no_length: no_length greedy latency
-          - latency_with_length: with_length greedy latency, including token counting
-        Shared preparation is treated as part of the constrained path and is not
-        included in either isolated latency measurement.
-        """
         if sim_threshold is None:
             sim_threshold = self.sim_threshold
 
@@ -553,9 +508,6 @@ class EvidenceGuidedCluster:
             "latency_with_length": latency_with_length,
         }
 
-    # -----------------------------
-    # Clustered inference
-    # -----------------------------
     def get_prompt(self, group):
         return build_evidence_cluster_prompt(self.children, self.retrieved_list, group)
 

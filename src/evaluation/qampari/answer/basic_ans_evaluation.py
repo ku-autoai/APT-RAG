@@ -1,6 +1,3 @@
-# .../qampari/models/evaluation/reader_metrics.py
-
-
 import argparse
 import json
 import os

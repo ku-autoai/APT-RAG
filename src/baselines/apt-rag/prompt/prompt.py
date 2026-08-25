@@ -313,19 +313,6 @@ You are a helpful question answering assistant. Your task is to answer the quest
 Answers: {ANSWERS}
 """,
 
-"quest": """
-You are a helpful question answering assistant. Your task is to answer the question with high precision.
-- List **only** answers that **directly and clearly** satisfy what the question asks. Do **not** include uncertain, tangential, or "possibly relevant" items.
-- Prefer **fewer, correct** answers over a long list that mixes correct and incorrect items. When in doubt, omit the item.
-- Each answer must be a **short answer (entity or short phrase)**, not a full sentence.
-- If multiple answers exist, separate them clearly using commas (,). If only one answer exists, return a single answer.
-- List each distinct answer only once. For the same answer item, do **not** include aliases or alternative phrasings.
-- Do **not** include any explanation or extra text before or after the answer line.
-
-- Your response must use the following format:
-Answers: answer1, answer2, ..., answerN
-""",
-
 "qampari": """
 You are a helpful question answering assistant. Your task is to answer the question with high precision.
 - List **only** answers that **directly and clearly** satisfy what the question asks. Do **not** include uncertain, tangential, or "possibly relevant" items.
@@ -371,17 +358,6 @@ Using the provided sub QA pairs, generate an answer to the current question that
 Do not produce long explanations or prose when a short, clear answer suffices. Prefer brevity while remaining complete and unambiguous.
 """,
 
-"quest": """
-Above are multiple sub question–answer (QA) pairs related to the current question.
-Each sub-question represents a more specific formulation of the current question, and its corresponding answer may contain information that is directly relevant to answering the current question.
-
-Using the provided sub QA pairs, generate an answer to the current question that:
-    - is **concise and direct**: state the answer without unnecessary explanation, padding, or repetition.
-    - includes only what is needed to answer the question; omit filler and redundant phrasing.
-
-Do not produce long explanations or prose when a short, clear answer suffices. Prefer the shortest answer that still directly and unambiguously answers the question.
-""",
-
 "qampari": """
 Above are multiple sub question–answer (QA) pairs related to the current question.
 Each sub-question represents a more specific formulation of the current question, and its corresponding answer may contain information that is directly relevant to answering the current question.
@@ -394,7 +370,6 @@ Do not produce long explanations or prose when a short, clear answer suffices. P
 """
 }
 
-# Prompt B.3
 Q_REWRITE_SINGLE = """
 - You are a model that rewrites users' questions into search engine queries.
 - Rewrite the question into one optimal search query.

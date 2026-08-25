@@ -22,7 +22,6 @@ class TreeOfQuestion:
         self._node_counter = 0
     
     def _next_node_id(self) -> int:
-        """Return the next node ID."""
         node_id = self._node_counter
         self._node_counter += 1
         return node_id
@@ -201,13 +200,9 @@ class TreeOfQuestion:
         infos: List[Dict],
         cost_dict: dict
     ) -> dict:
-        """
-        Decompose the node and recursively process child sub-questions.
-        """
-        # Line 13: Decompose Node into sub-questions
         sub_questions, cost_dict, question_plan_cost_individual = self.q_decomposer.Decompose(node.question, cost_dict, max_token=1000)
         node.node_costs["question_plan_cost"] = question_plan_cost_individual
-        
+
         if len(sub_questions) <= 1:
             return cost_dict
         

@@ -33,15 +33,12 @@ from utils.sidecar import (
 
 
 def _apply_smoke_overrides(args: argparse.Namespace) -> argparse.Namespace:
-    
-    """
-    Override args with small smoke-test values when SMOKE=1 is set.
-    """
-
     if os.environ.get("SMOKE", "0") != "1":
         return args
 
-    args.output_dir = args.output_dir + "_smoke"
+    output_dir = args.output_dir.rstrip("/")
+    if not output_dir.endswith("_smoke"):
+        args.output_dir = output_dir + "_smoke"
     args.limit_idx = 5000
     args.hnsw_train_size = 2000
     args.save_every_n_docs = 2000

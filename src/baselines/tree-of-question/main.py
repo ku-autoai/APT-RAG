@@ -149,7 +149,6 @@ def main(
     save_dir: str,
     save: bool = True
 ):
-    # keys = list(query_dict.keys())[51:]
     keys = list(query_dict.keys())
 
     for key in tqdm(keys, desc="Processing queries"):

@@ -669,7 +669,7 @@ class IterAnswerGenerator:
         documents = docuemnts_str
         
         answers = []
-        for _ in range(1): # for _ in range(SAMPLING_ITERATIONS):
+        for _ in range(1):
             response, cost, reason_cost = self.answer_with_reasoning(question, documents, cost)
             logger.debug(response)
             parsed_answer = self.parse_generated_text(response, logger)['answer']

@@ -1,6 +1,3 @@
-# original code: monaco/prompts/evaluate_final_answers.py
-
-
 from typing import Dict, Optional, List, Union
 
 class LLMJudgeScorerV2:

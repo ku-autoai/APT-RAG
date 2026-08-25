@@ -153,8 +153,6 @@ class APTRAGFramework:
                     queue[group_key]["cluster"] = True
         
         
-        # ---- batched retrieval for external child nodes
-        
         if external_answer_queue:
             questions = [external_answer_queue[i].question for i in external_answer_queue]
             q_idx_list = list(external_answer_queue.keys())

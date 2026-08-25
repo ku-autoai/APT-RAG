@@ -1,19 +1,57 @@
 import argparse
-import sys
-import os
 import json
+import os
+import sys
 import time
 from pathlib import Path
+
 from tqdm import tqdm
 
 BASELINES_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(BASELINES_ROOT))
-sys.path.insert(0, str(BASELINES_ROOT / "apt-rag"))
 
-from utils.utils import set_seed, load_query_dict
-from utils.model_utils import load_model, get_total_usage
-from module.module import Generator
+from utils.basic_generator import Generator
+from utils.model_utils import get_total_usage, load_model
 from utils.module import Retriever
+from utils.utils import load_query_dict, set_seed
+
+
+def save_execution_trace(
+    answer_dir,
+    ex_num,
+    query,
+    validated_answer,
+    retrieved_docs_dict,
+    generation_result,
+    g_cost_individual,
+    r_cost_individual,
+    total_latency,
+):
+    trace_dir = os.path.join(answer_dir, "execution_traces")
+    os.makedirs(trace_dir, exist_ok=True)
+    trace_data = {
+        "ex_num": ex_num,
+        "query": query,
+        "validated_answer": validated_answer,
+        "generation": generation_result,
+        "decomposition": {},
+        "provenance": {
+            "0": {
+                "query": query,
+                "generation": generation_result,
+                "retrieved_documents": retrieved_docs_dict,
+            }
+        },
+        "cost": {
+            "g_cost": g_cost_individual,
+            "r_cost": r_cost_individual,
+            "total_latency": total_latency,
+        },
+    }
+    trace_path = os.path.join(trace_dir, f"ex_{ex_num}.json")
+    with open(trace_path, "w", encoding="utf-8") as saver:
+        json.dump(trace_data, saver, indent=4, ensure_ascii=False)
+
 
 def main(query_dict, retriever, generator, save, save_path, max_token, llm_type, load=True):
     g_cost = {"call": 0, "input": 0, "output": 0, "latency": 0}
@@ -30,19 +68,19 @@ def main(query_dict, retriever, generator, save, save_path, max_token, llm_type,
     usage_enabled = "gpt" in llm_type.lower()
 
     keys = list(query_dict.keys())
-    preprocessed_ex_nums = [item['ex_num'] for item in final_result]
+    preprocessed_ex_nums = [item["ex_num"] for item in final_result]
 
     for key in tqdm(keys):
-        ex_num = query_dict[key]['ex_num']
-        query = query_dict[key]['question']
-        validated_answer = query_dict[key]['validated_answer']
+        ex_num = query_dict[key]["ex_num"]
+        query = query_dict[key]["question"]
+        validated_answer = query_dict[key]["validated_answer"]
 
         if ex_num in preprocessed_ex_nums:
             continue
-        
+
         start_time = time.perf_counter()
-        retrieved_docs_dict, r_cost, _ = retriever.Retrieve(query, r_cost)
-        generation_result, g_cost, _ = generator.Retrieval_Generate(query, retrieved_docs_dict, g_cost, max_token)
+        retrieved_docs_dict, r_cost, r_cost_individual = retriever.Retrieve(query, r_cost)
+        generation_result, g_cost, g_cost_individual = generator.Retrieval_Generate(query, retrieved_docs_dict, g_cost, max_token)
         total_latency = time.perf_counter() - start_time
 
         final_result.append({
@@ -58,6 +96,17 @@ def main(query_dict, retriever, generator, save, save_path, max_token, llm_type,
         })
 
         if save:
+            save_execution_trace(
+                os.path.dirname(save_path),
+                ex_num,
+                query,
+                validated_answer,
+                retrieved_docs_dict,
+                generation_result,
+                g_cost_individual,
+                r_cost_individual,
+                total_latency,
+            )
             with open(save_path, "w", encoding="utf-8") as saver:
                 json.dump(final_result, saver, indent=4, ensure_ascii=False)
 
@@ -109,16 +158,14 @@ if __name__ == "__main__":
     api_server_url = args.api_server_url
     retrieval_type = args.retrieval_type
 
-
     tokenizer, model = load_model(llm_type)
     generator = Generator(llm_type, tokenizer, model, dataset_name)
-
 
     top_k = args.top_k
     final_top_k = args.final_top_k
     expand = args.expand
     post_processing = args.post_processing
-    
+
     query_dict = load_query_dict(dataset_name, args.sample)
     if args.corpus_path is None:
         raise ValueError("--corpus-path is required")
@@ -127,12 +174,11 @@ if __name__ == "__main__":
         base_to_offsets, docid_to_suffix = Retriever.build_inverted_index(corpus_path)
     else:
         base_to_offsets, docid_to_suffix = {}, {}
-    
+
     retriever = Retriever(corpus_path, base_to_offsets, top_k, final_top_k,
         db_path=None, embedding_model=None, tokenizer=tokenizer,
         use_local=use_local, api_url=api_server_url,
         retrieval_type=retrieval_type, expand=expand, post_processing=post_processing
     )
-
 
     main(query_dict, retriever, generator, save, save_path, max_token, llm_type)

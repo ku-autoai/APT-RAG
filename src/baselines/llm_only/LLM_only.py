@@ -1,18 +1,38 @@
 import argparse
-import sys
-import os
 import json
+import os
+import sys
 import time
 from pathlib import Path
+
 from tqdm import tqdm
 
 BASELINES_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(BASELINES_ROOT))
-sys.path.insert(0, str(BASELINES_ROOT / "apt-rag"))
 
-from utils.utils import set_seed, load_query_dict
-from utils.model_utils import load_model, get_total_usage
-from module.module import Generator
+from utils.basic_generator import Generator
+from utils.model_utils import get_total_usage, load_model
+from utils.utils import load_query_dict, set_seed
+
+
+def save_execution_trace(answer_dir, ex_num, query, validated_answer, generation_result, g_cost_individual, total_latency):
+    trace_dir = os.path.join(answer_dir, "execution_traces")
+    os.makedirs(trace_dir, exist_ok=True)
+    trace_data = {
+        "ex_num": ex_num,
+        "query": query,
+        "validated_answer": validated_answer,
+        "generation": generation_result,
+        "decomposition": {},
+        "provenance": {},
+        "cost": {
+            "g_cost": g_cost_individual,
+            "total_latency": total_latency,
+        },
+    }
+    trace_path = os.path.join(trace_dir, f"ex_{ex_num}.json")
+    with open(trace_path, "w", encoding="utf-8") as saver:
+        json.dump(trace_data, saver, indent=4, ensure_ascii=False)
 
 
 def main(query_dict, generator, save, save_path, max_token, llm_type, load=True):
@@ -29,19 +49,19 @@ def main(query_dict, generator, save, save_path, max_token, llm_type, load=True)
     usage_enabled = "gpt" in llm_type.lower()
 
     keys = list(query_dict.keys())
-    preprocessed_ex_nums = [item['ex_num'] for item in final_result]
+    preprocessed_ex_nums = [item["ex_num"] for item in final_result]
 
     for key in tqdm(keys):
         info = query_dict[key]
-        ex_num = info['ex_num']
-        query = info['question']
-        validated_answer = info['validated_answer']
+        ex_num = info["ex_num"]
+        query = info["question"]
+        validated_answer = info["validated_answer"]
 
         if ex_num in preprocessed_ex_nums:
             continue
 
         start_time = time.perf_counter()
-        generation_result, g_cost, _ = generator.LLM_Generate(query, g_cost, max_token)
+        generation_result, g_cost, g_cost_individual = generator.LLM_Generate(query, g_cost, max_token)
         total_latency = time.perf_counter() - start_time
 
         final_result.append({
@@ -55,6 +75,15 @@ def main(query_dict, generator, save, save_path, max_token, llm_type, load=True)
         })
 
         if save:
+            save_execution_trace(
+                os.path.dirname(save_path),
+                ex_num,
+                query,
+                validated_answer,
+                generation_result,
+                g_cost_individual,
+                total_latency,
+            )
             with open(save_path, "w", encoding="utf-8") as saver:
                 json.dump(final_result, saver, indent=4, ensure_ascii=False)
 
@@ -92,7 +121,7 @@ if __name__ == "__main__":
         raise ValueError("--answer-dir is required")
     save_path = os.path.join(args.answer_dir, "results.json")
     max_token = args.max_token
-    
+
     tokenizer, model = load_model(llm_type)
     generator = Generator(llm_type, tokenizer, model, dataset_name)
 

@@ -8,13 +8,7 @@ from module.utils import SubQuestion, AnswerResult, EvalMetrics, Document
 from utils.utils import run_llm_with_cost
 
 
-# ============================================================
-# Section 3.1, Prompt B.2
-# ============================================================
-
-class QuestionDecomposer:
-    """Decompose a complex question into sub-questions."""
-    
+class QuestionDecomposer: 
     def __init__(self, llm_type, tokenizer, model):
         self.llm_type = llm_type
         self.tokenizer = tokenizer
@@ -73,13 +67,7 @@ class QuestionDecomposer:
         return sub_questions, cost_dict, question_plan_cost_individual
 
 
-# ============================================================
-# Section 3.2, Prompt B.1
-# ============================================================
-
 class AnswerIntegrator:
-    """Extract an answer span from a document."""
-
     def __init__(self, llm_type, tokenizer, model):
         self.llm_type = llm_type
         self.tokenizer = tokenizer
@@ -129,7 +117,6 @@ class AnswerIntegrator:
         text: str, 
         answers: Dict[int, str]
     ) -> str:
-        """Replace [ANS_N] placeholders with dependency answers."""
         result = text
         for idx, answer in answers.items():
             placeholder = f"[ANS_{idx + 1}]"  # 1-indexed marker
@@ -137,21 +124,13 @@ class AnswerIntegrator:
         return result
 
 
-
-# ============================================================
-# Section 3.3, Prompt B.3
-# ============================================================
-
 class QueryGenerator:
-    """Rewrite a user question as a retrieval query."""
-    
     def __init__(self, llm_type, tokenizer, model):
         self.llm_type = llm_type
         self.tokenizer = tokenizer
         self.model = model
     
     def Generate(self, question, cost_dict, max_token) -> str:
-        """Generate an optimized retrieval query."""
         query_gen_cost = cost_dict["query_gen_cost"]
 
         system_prompt = "" 
@@ -171,20 +150,13 @@ class QueryGenerator:
         return new_query, cost_dict, query_gen_cost_individual
 
 
-# ============================================================
-# Query Evaluator (Section 3.4, Prompt B.4)
-# ============================================================
-
-class QueryEvaluator:
-    """Evaluate query-response quality."""
-    
+class QueryEvaluator: 
     def __init__(self, llm_type, tokenizer, model):
         self.llm_type = llm_type
         self.tokenizer = tokenizer
         self.model = model
     
     def _parse_output(self, output: str) -> EvalMetrics:
-        """Parse an LLM response following Prompt B.4."""
         try:
             json_match = re.search(r'\{.*\}', output, re.DOTALL)
             if json_match:
@@ -215,15 +187,9 @@ class QueryEvaluator:
         return EvalMetrics.default()
     
     def is_positive(self, metrics: EvalMetrics) -> bool:
-        """
-        Section 3.4:
-        "Response Validity indicator, a binary (true/false) metric 
-        that determines the adequacy of responses"
-        """
         return metrics.response_validity
 
     def Evaluate(self, original_question, response, cost_dict, max_token) -> EvalMetrics:
-        """Evaluate response quality."""
         eval_cost = cost_dict["eval_cost"]
 
         system_prompt = ""
@@ -244,10 +210,6 @@ class QueryEvaluator:
         return metrics, cost_dict, eval_cost_individual
 
 
-# ============================================================
-# Response Generator
-# ============================================================
-
 class ResponseGenerator:
     def __init__(self, llm_type, tokenizer, model, dataset_name):
         self.llm_type = llm_type
@@ -262,7 +224,6 @@ class ResponseGenerator:
         return "\n\n".join(formatted)
 
     def Generate(self, question, query, documents, is_root, cost_dict, max_token) -> str:
-        """Generate a document-grounded response."""
         g_cost = cost_dict["g_cost"]
 
         docs_text = self._format_documents(documents)

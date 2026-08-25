@@ -1,7 +1,3 @@
-# original code:  monaco/prompts/answer_judgement_prompt_V2.py
-
-
-
 SINGLE_ANSWER_LLM_JUDGE = """Judge whether the following [response] to [question] is correct or not based on the precise and unambiguous [correct_answer] below.
 [question]: {question}
 [response]: '{response}'
