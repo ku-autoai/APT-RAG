@@ -2,7 +2,7 @@
 
 Official code for **A Tree-based RAG Framework for Evidence-Intensive QA via Adaptive Planning and Topology-Aware Evidence Gathering**, by Songeun Lee, Kyungjin Min, Injae Na, Suyeong Lee, Chiyoung Kim, Woohwan Jung.
 
-[**🤗 Artifacts**](https://huggingface.co/datasets/KJ-Min/APT-RAG-artifacts)
+[**📄 Paper**](https://arxiv.org/abs/2609.04981) | [**🤗 Artifacts**](https://huggingface.co/datasets/KJ-Min/APT-RAG-artifacts)
 
 ## Overview 
 
