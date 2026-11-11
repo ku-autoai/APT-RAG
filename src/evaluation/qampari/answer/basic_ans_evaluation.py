@@ -56,11 +56,7 @@ def parse_generation_to_predictions(generation: str) -> List[str]:
     if not text:
         return []
     # Split by comma, newline, or # (FiD-style)
-    parts = []
-    for sep in [",", "\n", "#"]:
-        if sep in text:
-            parts = [p.strip() for p in text.split(sep) if p.strip()]
-            break
+    parts = [p.strip() for p in regex.split(r"[,\n#]", text) if p.strip()]
     if not parts:
         parts = [text] if text else []
     return parts
